@@ -1,6 +1,6 @@
 # Rudolf
 
-![Logo](./images/rudolf.jpg)
+![Logo](./images/rudolf.png)
 
 Rudolf is an AI agent based on Ollama with WebUI interface.
 
