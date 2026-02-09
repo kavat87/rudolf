@@ -15,7 +15,9 @@ OLLAMA_URL = "http://ollama:11434/api/chat"
 MODEL_CONTEXT = {
     "mistral": int(os.getenv("MISTRAL_CTX")),
     "gpt-oss:20b": int(os.getenv("GPTOSS20B_CTX")),
-    "deepseeker-r1": int(os.getenv("DEEPSEEKERR1_CTX"))
+    "gpt-oss:120b": int(os.getenv("GPTOSS120B_CTX")),
+    "deepseeker-r1": int(os.getenv("DEEPSEEKERR1_CTX")),
+    "saki007ster/CybersecurityRiskAnalyst": int(os.getenv("CYBERRISKANALYST_CTX"))
 }
 
 sessions = {}

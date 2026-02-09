@@ -1,4 +1,0 @@
-websockets
-requests
-aiohttp
-tokenizers

@@ -20,9 +20,12 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - MODE=ws
-      - MISTRAL_CTX=8192
-      - GPTOSS20B_CTX=50000
-      - DEEPSEEKERR1_CTX=8192
+      - MISTRAL_CTX=32768
+      - GPTOSS20B_CTX=131072
+      - GPTOSS120B_CTX=131072
+      - DEEPSEEKERR1_CTX=131072
+      - CYBERRISKANALYST_CTX=131072
+      - RESPONSE_TOKENS=1024
     command: ["python", "app_chat.py"]
     networks:
       - private
@@ -37,9 +40,12 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - MODE=http
-      - MISTRAL_CTX=8192
-      - GPTOSS20B_CTX=50000
-      - DEEPSEEKERR1_CTX=8192
+      - MISTRAL_CTX=32768
+      - GPTOSS20B_CTX=131072
+      - GPTOSS120B_CTX=131072
+      - DEEPSEEKERR1_CTX=131072
+      - CYBERRISKANALYST_CTX=131072
+      - RESPONSE_TOKENS=1024
     command: ["python", "app_chat.py"]
     networks:
       - private
