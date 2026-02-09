@@ -158,6 +158,7 @@ async def stream_ollama(payload, send_chunk, type):
                         await send_chunk("___TOKEN___Answer unavailable due to error\n")
                     else:
                         await send_chunk("ERROR: " + chunk["error"] + "\n")
+                    break
 
         if type == "ws":
             await send_chunk("___CTX___Flow finished")

@@ -132,7 +132,7 @@ curl -N http://localhost:8080/api \
 
 Tokenizers have been downloaded from [huggingface](https://huggingface.co/) and are listed below:
 
-````text
+```text
 https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2/resolve/main/tokenizer.json?download=true
 https://huggingface.co/deepseek-ai/DeepSeek-R1/resolve/main/tokenizer.json?download=true
 https://huggingface.co/openai/gpt-oss-20b/resolve/main/tokenizer.json?download=true
