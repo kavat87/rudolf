@@ -27,11 +27,23 @@ body {
     overflow-y: auto;
 }
 
+#status {
+    max-width: 100%;
+    margin: auto;
+    padding: 20px;
+    background: rgba(20, 20, 25, 0.85);
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.7);
+    min-height: 6vh;
+    overflow-y: auto;
+    color: white;
+}
+
 /* Contenitore chat */
 #chat {
     max-width: 1000px;
     min-width: 1000px;
-    margin: auto;
+    /*margin: auto;*/
     padding: 20px;
     background: rgba(20, 20, 25, 0.85);
     border-radius: 12px;
@@ -166,13 +178,13 @@ pre {
 }
 
 /* Cursore lampeggiante per bot in streaming */
-.bot::after {
+/*.bot::after {
     content: '|';
     display: inline-block;
     margin-left: 2px;
     color: #9cff57;
     animation: blink 1s step-end infinite;
-}
+}*/
 
 @keyframes blink {
     50% { opacity: 0; }
@@ -192,33 +204,55 @@ pre {
     accent-color: #9cff57;
     cursor: pointer;
 }
+
+.didascalia {
+}
+
 </style>
 
 <!-- Librerie per Markdown + evidenziazione code -->
 <script src="/js/marked.min.js"></script>
-<link rel="stylesheet" href="/css/github-dark.min.css">
+<link rel="stylesheet" type="text/css" href="/css/github-dark.min.css">
 <script src="/js/highlight.min.js"></script>
 <script src="/js/purify.min.js"></script>
 
 </head>
 <body>
 
+<div class="didascalia">&nbsp;Prompt</div>
+<br>
 <div id="chat"></div>
+<div class="didascalia">&nbsp;System</div>
+<br>
+<div id="status">
+  <span id="ws_status">Websocket status: ...</span>
+  <br>
+  <span id="ws_op">Websocket operation: ...</span>
+  <br>
+  Context language:&nbsp;
+  <select id="language">
+    <option value="english">English</option>
+    <option value="italian">Italian</option>
+    <option value="french">French</option>
+  </select>
+  <label class="thinking-toggle">
+    <input type="checkbox" id="thinking" checked>
+    Thinking enabled
+  </label>
+</div>
 
+<br>
+<div class="didascalia">&nbsp;Event logs</div>
+<br>
 <div id="op"></div>
 
 <select id="model">
   <option value="mistral">mistral</option>
   <option value="gpt-oss:20b">gpt-oss:20b</option>
   <option value="gpt-oss:120b">gpt-oss:120b</option>
-  <option value="saki007ster/CybersecurityRiskAnalyst">saki007ster/CybersecurityRiskAnalyst</option>
+  <option value="saki007ster/CybersecurityRiskAnalyst:latest">saki007ster/CybersecurityRiskAnalyst</option>
   <option value="deepseek-r1">deepseek-r1</option>
 </select>
-
-<label class="thinking-toggle">
-  <input type="checkbox" id="thinking" checked>
-  Thinking enabled
-</label>
 
 <input id="input" placeholder="Scrivi e premi invio..." />
 
@@ -231,8 +265,11 @@ const ws = new WebSocket(
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const modelSelect = document.getElementById("model");
+const languageSelect = document.getElementById("language");
 const thinkingCheckbox = document.getElementById("thinking");
 const op = document.getElementById("op");
+const ws_status = document.getElementById("ws_status");
+const ws_op = document.getElementById("ws_op");
 
 let botMsg;
 let botMsgText = "";
@@ -240,15 +277,22 @@ let thinkingMsg;
 
 let op_in_progress = 0;
 
+ws_status.textContent = "Websocket status: connected";
+ws_op.textContent = "Websocket operation: available";
+
 ws.onclose = e => {
   console.warn("WebSocket closed", e.code, e.reason);
   op_in_progress = 0;
+  ws_status.textContent = "Websocket status: not connected";
+  ws_op.textContent = "Websocket operation: not available";
   alert("Websocket connection closed")
 };
 
 ws.onerror = e => {
   console.error("WebSocket error", e);
   ws.close();
+  ws_status.textContent = "Websocket status: not connected due to error (" + e + ")";
+  ws_op.textContent = "Websocket operation: not available";
   alert("Websocket closed due to error: " + e);
 };
 
@@ -261,7 +305,12 @@ ws.onmessage = e => {
       hljs.highlightElement(el);
     });
 
+    requestAnimationFrame(() => {
+      chat.scrollTop = chat.scrollHeight;
+    });
+
     op_in_progress = 0;
+    ws_op.textContent = "Websocket operation: available";
     return;
   }
 
@@ -283,6 +332,11 @@ ws.onmessage = e => {
   // Messaggi di thinking
   if (e.data.startsWith("___THINKING___")) {
     thinkingMsg.textContent += e.data.replace("___THINKING___", "");
+
+    requestAnimationFrame(() => {
+      chat.scrollTop = chat.scrollHeight;
+    });
+
     return;
   }
 
@@ -290,6 +344,11 @@ ws.onmessage = e => {
   if (e.data.startsWith("___TOKEN___")) {
     botMsgText += e.data.replace("___TOKEN___", "");
     botMsg.textContent += e.data.replace("___TOKEN___", "");
+
+    requestAnimationFrame(() => {
+      chat.scrollTop = chat.scrollHeight;
+    });
+
     return;
   }
 };
@@ -320,11 +379,13 @@ input.addEventListener("keydown", e => {
   chat.appendChild(botMsg);
 
   if(op_in_progress == 0) {
+    ws_op.textContent = "Websocket operation: in progress";
     op_in_progress = 1;
     op.innerHTML = "";
     ws.send(JSON.stringify({
       prompt: text,
       model: modelSelect.value,
+      language: languageSelect.value,
       thinking: thinkingCheckbox.checked
     }));
   }

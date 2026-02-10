@@ -20,6 +20,8 @@ MODEL_CONTEXT = {
     "saki007ster/CybersecurityRiskAnalyst": int(os.getenv("CYBERRISKANALYST_CTX"))
 }
 
+LANGUAGES = ["english", "italian", "french"]
+
 sessions = {}
 
 shutdown_event = asyncio.Event()
@@ -179,6 +181,12 @@ async def ws_handler(websocket):
 
             data = json.loads(message)
 
+            if data["language"] and data["language"] in LANGUAGES:
+                sessions[websocket].append({
+                    "role": "system",
+                    "content": "Set you answer and thinking language to " + data["language"] + " and use only it please during conversation and elaboration. You haven't to explain why you will use this language, you haven't to repeat, use the language only."
+                })
+
             sessions[websocket].append({
                 "role": "user",
                 "content": data["prompt"]
@@ -232,6 +240,12 @@ async def http_chat(request):
 
     session_id = id(request)
     sessions[session_id] = []
+
+    if data["language"] and data["language"] in LANGUAGES:
+        sessions[session_id].append({
+            "role": "system",
+            "content": "Set you answer and thinking language to " + data["language"]
+        })
 
     sessions[session_id].append({
         "role": "user",
